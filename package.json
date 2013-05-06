@@ -1,6 +1,6 @@
 {
   "name": "fake-dynamo-gem",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A node wrapper for the fake_dynamo gem",
   "main": "index.js",
   "bin": {
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "mocha -t 5s",
     "update": "GEM_HOME=./ruby gem update fake_dynamo && npm run-script clean",
-    "clean": "cd ./ruby && rm -rf build_info cache doc gems/*/test gems/*/spec gems/*/example*"
+    "clean": "cd ./ruby && rm -rf build_info cache doc && cd gems && rm -rf */test */tests */spec */example*"
   },
   "repository": {
     "type": "git",

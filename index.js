@@ -11,6 +11,7 @@ function start(spawnArgs, spawnOptions, cb) {
 
   spawnOptions.env = spawnOptions.env || {}
   spawnOptions.env.GEM_HOME = spawnOptions.env.GEM_HOME || gemHome
+  spawnOptions.env.PATH = spawnOptions.env.PATH || process.env.PATH
 
   fakeDynamo = spawn(gemHome + '/bin/fake_dynamo', spawnArgs, spawnOptions)
 

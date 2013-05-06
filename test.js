@@ -1,7 +1,7 @@
 var fs = require('fs'),
     http = require('http'),
     should = require('should'),
-    fakeDynamoGem = require('.'),
+    fakeDynamoGem = require('./'),
     DEFAULT_DB = '/usr/local/var/fake_dynamo/db.fdb'
 
 describe('fake-dynamo-gem', function() {
