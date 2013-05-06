@@ -1,0 +1,30 @@
+{
+  "name": "fake-dynamo-gem",
+  "version": "0.0.0",
+  "description": "A node wrapper for the fake_dynamo gem",
+  "main": "index.js",
+  "bin": {
+    "nfakedynamo": "./bin/nfakedynamo"
+  },
+  "scripts": {
+    "test": "mocha -t 5s",
+    "update": "GEM_HOME=./ruby gem update fake_dynamo && npm run-script clean",
+    "clean": "cd ./ruby && rm -rf build_info cache doc gems/*/test gems/*/spec gems/*/example*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mhart/node-fake-dynamo-gem.git"
+  },
+  "keywords": [
+    "dynamo",
+    "dynamodb",
+    "fake",
+    "mock"
+  ],
+  "author": "Michael Hart <michael.hart.au@gmail.com> (http://github.com/mhart)",
+  "license": "MIT",
+  "devDependencies": {
+    "should": "~1.2.2",
+    "mocha": "~1.9.0"
+  }
+}

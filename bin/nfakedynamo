@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export GEM_HOME="$(dirname "$0")/$(dirname "$(readlink "$0")")/../ruby"
+
+"$GEM_HOME/bin/fake_dynamo" "$@"
