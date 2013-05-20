@@ -212,7 +212,7 @@ module FakeDynamo
 
     def query(data)
       range_key_present
-      select_and_attributes_to_get_present(data)
+      select_and_attributes_to_get_present?(data)
       validate_limit(data)
 
       index = nil
@@ -244,7 +244,7 @@ module FakeDynamo
         conditions = {}
       end
 
-      results, last_evaluated_item, _ = filter(matched_items, conditions, data['Limit'], true)
+      results, last_evaluated_item, _ = filter(matched_items, conditions, data['Limit'], true, sack_attributes(data, index))
 
       response = {'Count' => results.size}.merge(consumed_capacity(data))
       merge_items(response, data, results, index)
@@ -260,10 +260,21 @@ module FakeDynamo
     end
 
     def scan(data)
-      select_and_attributes_to_get_present(data)
+      select_and_attributes_to_get_present?(data)
+      total_segments_and_segment_present?(data)
       validate_limit(data)
+
       conditions = data['ScanFilter'] || {}
-      all_items = drop_till_start(items.values, data['ExclusiveStartKey'], true, key_schema)
+
+
+      if (segment = data['Segment']) && (total_segments = data['TotalSegments'])
+        chunk_size = (items.values.size / total_segments.to_f).ceil
+        current_segment = items.values.slice(segment * chunk_size, chunk_size) || []
+      else
+        current_segment = items.values
+      end
+
+      all_items = drop_till_start(current_segment, data['ExclusiveStartKey'], true, key_schema)
       results, last_evaluated_item, scaned_count = filter(all_items, conditions, data['Limit'], false)
       response = {
         'Count' => results.size,
@@ -279,19 +290,45 @@ module FakeDynamo
     end
 
     def merge_items(response, data, results, index = nil)
+      if (attrs = attributes_to_get(data, index)) != false
+        response['Items'] = results.map { |r| filter_attributes(r, attrs) }
+      end
+      response
+    end
+
+    def attributes_to_get(data, index)
       if data['Select'] != 'COUNT'
-        attributes_to_get = nil # select everything
+        if index
+          attributes_to_get = projected_attributes(index)
+        else
+          attributes_to_get = nil # select everything
+        end
+
 
         if data['AttributesToGet']
           attributes_to_get = data['AttributesToGet']
         elsif data['Select'] == 'ALL_PROJECTED_ATTRIBUTES'
           attributes_to_get = projected_attributes(index)
+        elsif data['Select'] == 'ALL_ATTRIBUTES'
+          attributes_to_get = nil
         end
+      else
+        false
+      end
+    end
 
-        response['Items'] = results.map { |r| filter_attributes(r, attributes_to_get) }
+    def sack_attributes(data, index)
+      return unless index
+
+      if data['Select'] == 'COUNT'
+        return projected_attributes(index)
       end
 
-      response
+      if attrs = attributes_to_get(data, index)
+        if (attrs - projected_attributes(index)).empty?
+          return projected_attributes(index)
+        end
+      end
     end
 
     def projected_attributes(index)
@@ -309,10 +346,27 @@ module FakeDynamo
       end
     end
 
-    def select_and_attributes_to_get_present(data)
+    def select_and_attributes_to_get_present?(data)
       select = data['Select']
       if select and data['AttributesToGet'] and (select != 'SPECIFIC_ATTRIBUTES')
         raise ValidationException, "Cannot specify the AttributesToGet when choosing to get only the #{select}"
+      end
+    end
+
+    def total_segments_and_segment_present?(data)
+      segment, total_segments = data['Segment'], data['TotalSegments']
+
+      if (total_segments && !segment)
+        raise ValidationException, "The Segment parameter is required but was not present in the request when parameter TotalSegments is present"
+      end
+
+      if (segment && !total_segments)
+        raise ValidationException, "The TotalSegments parameter is required but was not present in the request when Segment parameter is present"
+      end
+
+      if (segment && total_segments) &&
+          (segment >= total_segments)
+        raise ValidationException, "The Segment parameter is zero-based and must be less than parameter TotalSegments: Segment: #{segment} is not less than TotalSegments: #{total_segments}"
       end
     end
 
@@ -364,9 +418,16 @@ module FakeDynamo
       end
     end
 
-    def filter(items, conditions, limit, fail_on_type_mismatch)
+    def filter(items, conditions, limit, fail_on_type_mismatch, sack_attributes = nil)
       limit ||= -1
       result = []
+      if sack_attributes
+        sack_result = []
+        sack = Sack.new(sack_result)
+      else
+        sack = Sack.new(result)
+      end
+
       last_evaluated_item = nil
       scaned_count = 0
       items.each do |item|
@@ -384,7 +445,9 @@ module FakeDynamo
 
         if select
           result << item
-          if (limit -= 1) == 0
+          sack_result << filter_attributes(item, sack_attributes) if sack_attributes
+
+          if (limit -= 1) == 0 || (!sack.has_space?)
             last_evaluated_item = item
             break
           end
