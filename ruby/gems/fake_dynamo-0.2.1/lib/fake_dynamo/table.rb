@@ -244,7 +244,7 @@ module FakeDynamo
         conditions = {}
       end
 
-      results, last_evaluated_item, _ = filter(matched_items, conditions, data['Limit'], true, sack_attributes(data, index))
+      results, last_evaluated_item, _ = filter(matched_items, conditions, data['Limit'], true)
 
       response = {'Count' => results.size}.merge(consumed_capacity(data))
       merge_items(response, data, results, index)
@@ -290,13 +290,6 @@ module FakeDynamo
     end
 
     def merge_items(response, data, results, index = nil)
-      if (attrs = attributes_to_get(data, index)) != false
-        response['Items'] = results.map { |r| filter_attributes(r, attrs) }
-      end
-      response
-    end
-
-    def attributes_to_get(data, index)
       if data['Select'] != 'COUNT'
         if index
           attributes_to_get = projected_attributes(index)
@@ -312,23 +305,11 @@ module FakeDynamo
         elsif data['Select'] == 'ALL_ATTRIBUTES'
           attributes_to_get = nil
         end
-      else
-        false
-      end
-    end
 
-    def sack_attributes(data, index)
-      return unless index
-
-      if data['Select'] == 'COUNT'
-        return projected_attributes(index)
+        response['Items'] = results.map { |r| filter_attributes(r, attributes_to_get) }
       end
 
-      if attrs = attributes_to_get(data, index)
-        if (attrs - projected_attributes(index)).empty?
-          return projected_attributes(index)
-        end
-      end
+      response
     end
 
     def projected_attributes(index)
@@ -418,16 +399,9 @@ module FakeDynamo
       end
     end
 
-    def filter(items, conditions, limit, fail_on_type_mismatch, sack_attributes = nil)
+    def filter(items, conditions, limit, fail_on_type_mismatch)
       limit ||= -1
       result = []
-      if sack_attributes
-        sack_result = []
-        sack = Sack.new(sack_result)
-      else
-        sack = Sack.new(result)
-      end
-
       last_evaluated_item = nil
       scaned_count = 0
       items.each do |item|
@@ -445,9 +419,7 @@ module FakeDynamo
 
         if select
           result << item
-          sack_result << filter_attributes(item, sack_attributes) if sack_attributes
-
-          if (limit -= 1) == 0 || (!sack.has_space?)
+          if (limit -= 1) == 0
             last_evaluated_item = item
             break
           end
