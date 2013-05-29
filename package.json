@@ -1,6 +1,6 @@
 {
   "name": "fake-dynamo-gem",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A node wrapper for the fake_dynamo gem",
   "main": "index.js",
   "bin": {
