@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha -t 10s",
-    "update": "GEM_HOME=./ruby gem update fake_dynamo && npm run-script clean",
+    "update": "GEM_HOME=./ruby gem update fake_dynamo && npm run clean",
     "clean": "cd ./ruby && rm -rf build_info cache doc && cd gems && rm -rf */test */tests */spec */example*"
   },
   "repository": {

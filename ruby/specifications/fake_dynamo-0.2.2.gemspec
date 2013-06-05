@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = "fake_dynamo"
-  s.version = "0.2.1"
+  s.version = "0.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Anantha Kumaran"]
-  s.date = "2013-05-02"
+  s.date = "2013-06-04"
   s.email = ["ananthakumaran@gmail.com"]
   s.executables = ["fake_dynamo"]
   s.files = ["bin/fake_dynamo"]
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.summary = "local hosted, inmemory fake dynamodb"
 
   if s.respond_to? :specification_version then
-    s.specification_version = 3
+    s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<sinatra>, [">= 0"])
