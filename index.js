@@ -6,6 +6,7 @@ function start(spawnArgs, spawnOptions, cb) {
   if (!cb) { cb = spawnOptions; spawnOptions = {} }
   if (!cb) { cb = spawnArgs; spawnArgs = [] }
   if (!cb) { cb = function(){} }
+  if (typeof spawnArgs === 'string') spawnArgs = [spawnArgs]
 
   var gemHome = __dirname + '/ruby', fakeDynamo, lastStdErr
 

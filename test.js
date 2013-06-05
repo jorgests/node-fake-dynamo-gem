@@ -19,7 +19,7 @@ describe('fake-dynamo-gem', function() {
       http.request({port: 4567, method: 'DELETE'}, function(res) {
         res.statusCode.should.equal(200)
         fakeDynamo.kill()
-        done()
+        fakeDynamo.on('exit', function() { done() })
       }).on('error', done).end()
     })
   })
@@ -31,7 +31,19 @@ describe('fake-dynamo-gem', function() {
       http.request({port: 1234, method: 'DELETE'}, function(res) {
         res.statusCode.should.equal(200)
         fakeDynamo.kill()
-        done()
+        fakeDynamo.on('exit', function() { done() })
+      }).on('error', done).end()
+    })
+  })
+
+  it('should construct ok with a string', function(done) {
+    fakeDynamoGem('--db=/tmp/fake_dynamo.fdb', function(err, fakeDynamo) {
+      if (err) return done(err)
+
+      http.request({port: 4567, method: 'DELETE'}, function(res) {
+        res.statusCode.should.equal(200)
+        fakeDynamo.kill()
+        fakeDynamo.on('exit', function() { done() })
       }).on('error', done).end()
     })
   })
