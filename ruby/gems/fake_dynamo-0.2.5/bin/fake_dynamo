@@ -57,7 +57,7 @@ if (pid = options[:pid])
   File.open(pid, 'w') { |f| f.write(Process.pid) }
 end
 
-FakeDynamo::Storage.db_path = options[:db]
+FakeDynamo::Storage.instance.init_db(options[:db])
 FakeDynamo::Logger.setup(options[:log_level])
 
 if options[:compact]
@@ -67,7 +67,9 @@ end
 
 FakeDynamo::Storage.instance.load_aof
 FakeDynamo::Server.run!(:port => options[:port], :bind => options[:bind]) do |server|
-  server.config[:AccessLog] = []
+  if server.respond_to?('config') && server.config.respond_to?('[]=')
+    server.config[:AccessLog] = []
+  end
 end
 
 at_exit {

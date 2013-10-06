@@ -942,7 +942,7 @@
             - :boolean
     ReturnValues:
     - :string
-    - :enum: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]
+    - :enum: [ALL_OLD, NONE]
     ReturnConsumedCapacity:
     - :string
     - :enum: [TOTAL, NONE]
@@ -1065,6 +1065,7 @@
             - :required
             - :enum: [EQ, LE, LT, GE, GT, BEGINS_WITH, BETWEEN]
     - :within: !ruby/range 1..2
+    - :required
     ScanIndexForward:
     - :boolean
     ExclusiveStartKey:

@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = "fake_dynamo"
-  s.version = "0.2.2"
+  s.version = "0.2.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Anantha Kumaran"]
-  s.date = "2013-06-04"
+  s.date = "2013-09-21"
   s.email = ["ananthakumaran@gmail.com"]
   s.executables = ["fake_dynamo"]
   s.files = ["bin/fake_dynamo"]
