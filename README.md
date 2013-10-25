@@ -1,5 +1,7 @@
-fake-dynamo-gem
----------------
+fake-dynamo-gem (obsolete)
+--------------------------
+
+NB: This project has been superseded by [dynalite](https://github.com/mhart/dynalite) - please use that for your node.js mock DynamoDB needs.
 
 [![Build Status](https://secure.travis-ci.org/mhart/node-fake-dynamo-gem.png?branch=master)](http://travis-ci.org/mhart/node-fake-dynamo-gem)
 
